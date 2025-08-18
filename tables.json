@@ -1,0 +1,24 @@
+{
+    "1": {
+        "name": "objectives",
+        "values":
+            {"objective_id": "INTEGER",
+            "point_value": "INTEGER",
+            "name": "STRING",
+            "description": "STRING",
+            "time_assigned": "INTEGER",
+            "time_due": "INTEGER", 
+            "completion_status": "INTEGER",
+            "assigned_member_id": "INTEGER",
+            "guild_id": "INTEGER"}
+    },
+    "2": {
+        "name": "members",
+        "values": {
+            "member_id": "INTEGER",
+            "guild_id": "INTEGER",
+            "points": "INTEGER",
+            "tasks_completed": "INTEGER"
+        }
+    }
+}
