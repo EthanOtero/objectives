@@ -96,8 +96,11 @@ async def create(interaction: nextcord.Interaction,
     new_obj = await Objective.create(name=name, description=description, time_due=time_due, point_value=point_value, assigned_member_id=assigned_member_id, guild_id=interaction.guild.id)
     em = nextcord.Embed(
             title=new_obj.name, color=nextcord.Color(int("999999", 16)))
-    em.add_field(name=new_obj.description,
-                    value=f"Worth {new_obj.point_value} points!", inline=False)
+    if point_value and point_value > 0:
+        em.add_field(name=new_obj.description,
+                        value=f"Worth {new_obj.point_value} points!", inline=False)
+    else:
+        em.add_field(name=new_obj.description, inline=False)
     em.add_field(name='​',
                     value=f"Assigned <t:{new_obj.time_assigned}:D>; due <t:{new_obj.time_due}:D>.")
     if assigned_channel:
@@ -105,19 +108,8 @@ async def create(interaction: nextcord.Interaction,
     else:
         await assigned_member.send(f"{assigned_member.mention}: You've just been assigned a new objective in `{assigned_member.guild.name}`!", embed=em)
     view = ContactOptions()
-    await assigned_channel.send(f"{assigned_member.mention}", embed=em, view=view)
-    await interaction.send(f"Objective `{name}` has been created!", ephemeral=True)
-    await view.wait()
-    if view.value is None:
-        return
-    elif view.value == "Complete":
-        role = interaction.guild.get_role(int(OWNER_ROLE_ID))
-        new_thread = assigned_channel.create_thread(name=f"\"{new_obj.name}\" Completion Review", type=nextcord.ChannelType.public_thread)
-        return await new_thread.send(f"{role.mention}: {assigned_member.mention} has marked the objective `{new_obj.name}` as complete!")
-    elif view.value == "Clarify":
-        role = interaction.guild.get_role(int(OWNER_ROLE_ID))
-        new_thread = await assigned_channel.create_thread(name=f"\"{new_obj.name}\" Clarification Discussion", type=nextcord.ChannelType.public_thread)
-        return await new_thread.send(f"{role.mention}: {assigned_member.mention} is requesting clarification on `{new_obj.name}`.")
+    await assigned_channel.send(f"{assigned_member.mention}", embed=em)
+    return await interaction.send(f"Objective `{name}` has been created!", ephemeral=True)
 
 @objective.subcommand(description="List all currently assigned objectives.")
 async def list(interaction: nextcord.Interaction, showcompleted: Optional[bool] = nextcord.SlashOption(name='showcompleted', description='Show completed objectives?')):
@@ -128,11 +120,19 @@ async def list(interaction: nextcord.Interaction, showcompleted: Optional[bool] 
             title="Current Objectives\n", color=nextcord.Color(int("CC99FF", 16)))
     for objective in objective_list:
         if objective.completion_status:
-            em.add_field(name=f"✅ {objective.name}",
+            if objective.point_value and objective.point_value > 0:
+                em.add_field(name=f"✅ {objective.name}",
                             value=f"Description: {objective.description}​\n **Worth {objective.point_value} points!**", inline=False)
+            else:
+                em.add_field(name=f"✅ {objective.name}",
+                                            value=f"Description: {objective.description}​", inline=False)
         else:
-            em.add_field(name=f"❌ {objective.name}",
+            if objective.point_value and objective.point_value > 0:
+                em.add_field(name=f"❌ {objective.name}",
                             value=f"Description: {objective.description}​\n **Worth {objective.point_value} points!**", inline=False)
+            else:
+                em.add_field(name=f"❌ {objective.name}",
+                                            value=f"Description: {objective.description}​", inline=False)
     print(objective_list)
     return await interaction.send(embed=em, ephemeral=True)
 
@@ -144,16 +144,22 @@ async def view(interaction: nextcord.Interaction, name = nextcord.SlashOption(na
     if selected_objective.completion_status:
         em = nextcord.Embed(
             title=selected_objective.name, color=nextcord.Color(int("42f54b", 16)))
-        em.add_field(name=selected_objective.description,
-                        value=f"Worth {selected_objective.point_value} points!", inline=False)
+        if selected_objective.point_value and selected_objective.point_value > 0:
+            em.add_field(name=selected_objective.description,
+                    value=f"Worth {selected_objective.point_value} points!", inline=False)
+        else:
+            em.add_field(name=selected_objective.description, inline=False)
         em.add_field(name='​',
                      value=f"Assigned <t:{selected_objective.time_assigned}:D>; due <t:{selected_objective.time_due}:D>.\nComplete!")
         return await interaction.send(embed=em, ephemeral=True)
     else:
         em = nextcord.Embed(
             title=selected_objective.name, color=nextcord.Color(int("f54242", 16)))
-        em.add_field(name=selected_objective.description,
+        if selected_objective.point_value and selected_objective.point_value > 0:
+            em.add_field(name=selected_objective.description,
                         value=f"Worth {selected_objective.point_value} points!", inline=False)
+        else:
+            em.add_field(name=selected_objective.description, inline=False)
         em.add_field(name='​',
                      value=f"Assigned <t:{selected_objective.time_assigned}:D>; due <t:{selected_objective.time_due}:D>.\nStill Completable!")
         view = ContactOptions()
