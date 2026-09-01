@@ -100,7 +100,7 @@ async def create(interaction: nextcord.Interaction,
         em.add_field(name=new_obj.description,
                         value=f"Worth {new_obj.point_value} points!", inline=False)
     else:
-        em.add_field(name=new_obj.description, inline=False)
+        em.add_field(name=new_obj.description, value="​", inline=False)
     em.add_field(name='​',
                     value=f"Assigned <t:{new_obj.time_assigned}:D>; due <t:{new_obj.time_due}:D>.")
     if assigned_channel:
@@ -148,7 +148,7 @@ async def view(interaction: nextcord.Interaction, name = nextcord.SlashOption(na
             em.add_field(name=selected_objective.description,
                     value=f"Worth {selected_objective.point_value} points!", inline=False)
         else:
-            em.add_field(name=selected_objective.description, inline=False)
+            em.add_field(name=selected_objective.description, value="​", inline=False)
         em.add_field(name='​',
                      value=f"Assigned <t:{selected_objective.time_assigned}:D>; due <t:{selected_objective.time_due}:D>.\nComplete!")
         return await interaction.send(embed=em, ephemeral=True)
