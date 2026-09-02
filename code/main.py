@@ -159,7 +159,7 @@ async def view(interaction: nextcord.Interaction, name = nextcord.SlashOption(na
             em.add_field(name=selected_objective.description,
                         value=f"Worth {selected_objective.point_value} points!", inline=False)
         else:
-            em.add_field(name=selected_objective.description, inline=False)
+            em.add_field(name=selected_objective.description, value="​", inline=False)
         em.add_field(name='​',
                      value=f"Assigned <t:{selected_objective.time_assigned}:D>; due <t:{selected_objective.time_due}:D>.\nStill Completable!")
         view = ContactOptions()
