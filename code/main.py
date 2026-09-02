@@ -205,9 +205,13 @@ async def complete(interaction: nextcord.Interaction, name = nextcord.SlashOptio
     async with Database.connection_obj.cursor() as cursor:
         await cursor.execute("SELECT points,tasks_completed FROM members WHERE member_id = ?", (selected_objective.assigned_member_id,))
         data = await cursor.fetchone()
-        new_points = int(data[0]) + selected_objective.point_value
-        new_tasks_completed = int(data[1]) + 1
-        await cursor.execute("UPDATE members SET points = ?, tasks_completed = ? WHERE member_id = ?", (new_points, new_tasks_completed, selected_objective.assigned_member_id))
+        if selected_objective.point_value and selected_objective.point_value > 0:
+            new_points = int(data[0]) + selected_objective.point_value
+            new_tasks_completed = int(data[1]) + 1
+            await cursor.execute("UPDATE members SET points = ?, tasks_completed = ? WHERE member_id = ?", (new_points, new_tasks_completed, selected_objective.assigned_member_id))
+        else:
+            new_tasks_completed = int(data[1]) + 1
+            await cursor.execute("UPDATE members SET tasks_completed = ? WHERE member_id = ?", (new_tasks_completed, selected_objective.assigned_member_id))
     await Database.connection_obj.commit()
     return await interaction.send(f"Marked `{selected_objective.name}` as complete.", ephemeral=True)
 
@@ -252,8 +256,9 @@ async def stats(interaction: nextcord.Interaction):
         data = await cursor.fetchone()
         points = data[0]
         tasks_completed = data[1]
-    em.add_field(name="Total Points:",
-                    value=f"🪙 {points}", inline=False)
+    if points and points > 0:
+        em.add_field(name="Total Points:",
+                        value=f"🪙 {points}", inline=False)
     em.add_field(name='Completed Objectives:',
                     value=f"☑️ {tasks_completed}")
     await interaction.send(embed=em, ephemeral=True)
